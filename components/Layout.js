@@ -1,14 +1,17 @@
 import React, { useContext } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router'
 import NextLink from 'next/link';
 import { createTheme } from '@material-ui/core/styles';
-import { AppBar, Container, Link, Switch, Toolbar, ThemeProvider, Typography } from '@material-ui/core';
+import { AppBar, Container, Link, Switch, Toolbar, ThemeProvider, Typography, Button } from '@material-ui/core';
 import useStyles from '../utils/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { ExitToApp } from '@material-ui/icons';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 
 export default function Layout({ title, description, children }) {
+  const router = useRouter()
   const { state, dispatch } = useContext(Store);
   const { darkMode, userInfo } = state;
   const theme = createTheme({
@@ -56,9 +59,19 @@ export default function Layout({ title, description, children }) {
             <div className={classes.grow}></div>
             <div>
               <Switch checked={darkMode} onChange={darkModeChangeHandler}></Switch>
-              <NextLink href="/login" passHref>
+              <NextLink href={userInfo ? '/profile' : '/login'} passHref>
                 <Link>{userInfo ? userInfo.name : 'Login'}</Link>
               </NextLink>
+              {userInfo && (
+                <Button
+                  startIcon={<ExitToApp />}
+                  onClick={() => {
+                    Cookies.set('userInfo', null);
+                    dispatch({ type: 'USER_LOGOUT' });
+                    router.push('/login');
+                  }}
+                />
+              )}
             </div>
           </Toolbar>
         </AppBar>
