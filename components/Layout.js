@@ -10,7 +10,7 @@ import { ExitToApp } from '@material-ui/icons';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 
-export default function Layout({ title, description, children }) {
+export default function Layout({ title, description, children, style = {} }) {
   const router = useRouter()
   const { state, dispatch } = useContext(Store);
   const { darkMode, userInfo } = state;
@@ -57,7 +57,7 @@ export default function Layout({ title, description, children }) {
               <Link><Typography className={classes.brand}>ROUTINEXT</Typography></Link>
             </NextLink>
             <div className={classes.grow}></div>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center'}}>
               <Switch checked={darkMode} onChange={darkModeChangeHandler}></Switch>
               <NextLink href={userInfo ? '/profile' : '/login'} passHref>
                 <Link>{userInfo ? userInfo.name : 'Login'}</Link>
@@ -75,12 +75,12 @@ export default function Layout({ title, description, children }) {
             </div>
           </Toolbar>
         </AppBar>
-      <Container className={classes.main}>
+      <Container className={classes.main} style={style}>
         {children}
       </Container>
       <footer className={classes.footer}>
         <Typography>
-          All rights reserved. Zaquiel Rodriguez Arce
+          Application made by Zaquiel Rodriguez Arce
         </Typography>
       </footer>
       </ThemeProvider>

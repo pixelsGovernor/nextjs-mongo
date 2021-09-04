@@ -49,14 +49,15 @@ export default function Home({ historyTodayProps, tasks: tasksProps = [] }) {
     } else {
       tasks.push({ completed, id, user: userInfo.email });
     }
-    const { status } = await axios.post(`/api/tasks/${historyTodayProps ? 'updateHistoryTasks' :'createHistoryTasks'}`, { idHistoryTask: historyTodayProps && historyTodayProps._id, id, tasks, user: userInfo.email });
+    const { status, data } = await axios.post(`/api/tasks/${historyToday && historyToday._id ? 'updateHistoryTasks' :'createHistoryTasks'}`, { idHistoryTask: historyToday && historyToday._id, id, tasks, user: userInfo.email });
+
     if (status === 200) {
       if (!sliderTouched) {
         const newSliderValues = {...sliderValues};
         newSliderValues[id] = completed;
         setSliderValues(newSliderValues);
       }
-      setHistoryToday({ ...historyToday, tasks });
+      setHistoryToday(data.data);
     }
     sliderTouched = false;
     setLoadingTaskId(null);

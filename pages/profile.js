@@ -1,11 +1,14 @@
 import React, { useContext, useEffect } from 'react';
 import { Store } from '../utils/Store';
 import { useRouter } from 'next/router';
-import { PolarArea } from 'react-chartjs-2';
+import { Line, PolarArea } from 'react-chartjs-2';
 import db from '../utils/db';
 import nookies from 'nookies';
 import Task from '../models/Task';
 import HistoryTask from '../models/HistoryTask';
+import Layout from '../components/Layout';
+import { Card, Typography } from '@material-ui/core';
+import CardContent from '@material-ui/core/CardContent';
 
 export default function Profile({ tasks = [], historyTasks = [] }) {
   const router = useRouter();
@@ -29,7 +32,10 @@ export default function Profile({ tasks = [], historyTasks = [] }) {
   const historyTasksUsers = {};
   historyTasks.forEach((historyTaskDay) => {
     historyTaskDay.tasks.forEach((task) => {
-      historyTasksUsers[task.id] = (historyTasksUsers[task.id] || 0) + task.completed
+      const taskUser = historyTasksUsers[task.id] ? historyTasksUsers[task.id] : {};
+      taskUser.total = (taskUser.total || 0) + task.completed;
+      taskUser[historyTaskDay.date] = task.completed
+      historyTasksUsers[task.id] = taskUser
     })
   })
 
@@ -41,22 +47,64 @@ export default function Profile({ tasks = [], historyTasks = [] }) {
 
   const data = {
     datasets: [{
-      data: Object.keys(historyTasksUsers).map((key) => historyTasksUsers[key]),
+      data: Object.keys(historyTasksUsers).map((key) => historyTasksUsers[key].total),
       backgroundColor: tasks.map(() => getRandomColor()),
       label: 'My dataset' // for legend
     }],
     labels: tasks.map(task => task.title)
   };
 
+  const dataLine = {
+    labels: historyTasks.map((historyTask) => historyTask.date),
+    datasets: tasks.map((task) => {
+      const color = getRandomColor();
+      return ({
+        label: task.title,
+        data: historyTasks.map((historyTask) => historyTasksUsers[task._id][historyTask.date] || 0),
+        fill: false,
+        backgroundColor: color,
+        borderColor: color,
+      });
+    })
+  };
+
+  const options = {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  };
+
   return (
-    <>
-      <div>PROFILE PAGE IN PROGRESS</div>
-      <div style={{ width: 800 }}>
-        <PolarArea
-          data={data}
-        />
-      </div>
-    </>
+    <Layout style={{ display: 'flex', flexWrap: 'wrap'}}>
+      <Card style={{ minWidth: 400 , width: 600, maxWidth: 800, marginTop: '15px' }}>
+        <CardContent>
+          <Typography variant="h2">
+            TASKS COMPARATOR
+          </Typography>
+        </CardContent>
+        <CardContent>
+          <PolarArea
+            data={data}
+          />
+        </CardContent>
+      </Card>
+      <Card style={{ minWidth: 400 , width: 600, maxWidth: 800, marginLeft: '15px', marginTop: '15px' }}>
+        <CardContent>
+          <Typography variant="h2">
+            COMPLETED TASKS BY DAY
+          </Typography>
+        </CardContent>
+        <CardContent>
+          <Line data={dataLine} options={options} />
+        </CardContent>
+      </Card>
+    </Layout>
   );
 }
 

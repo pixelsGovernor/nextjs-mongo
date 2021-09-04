@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "start": "npm run dev",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
     "test": "jest --env=jsdom --watch",
     "lint": "next lint"
   },
